@@ -1,0 +1,859 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Power xatFrame</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .5; }
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Contenedor estricto para el sprite */
+    .sprite-container {
+        width: 80px;
+        height: 80px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Imagen (sin animación para evitar parpadeo) */
+    .sprite-image {
+        height: 100%;
+        width: auto;
+        position: absolute;
+        left: 0;
+        top: 0;
+        object-fit: contain;
+    }
+
+    /* --- AJUSTES VISUALES EXCLUSIVOS PARA PAWNS (Galería libre) --- */
+    #pawns-grid > div {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+    
+    #pawns-grid > div:hover {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    #pawns-grid > div > span:first-of-type {
+        display: none !important;
+    }
+
+    #pawns-grid .sprite-container {
+        background: transparent !important;
+        box-shadow: none !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    #pawns-grid .sprite-image {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: none !important;
+        object-fit: none !important;
+        image-rendering: auto; 
+    }
+
+    /* Ocultar barra de desplazamiento para overflow seguro del buscador horizontal */
+    .search-scroll::-webkit-scrollbar {
+        height: 4px;
+    }
+    .search-scroll::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .search-scroll::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5); 
+        border-radius: 10px;
+    }
+
+    /* Evitar la selección de texto en todo el documento */
+    * {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.\!static{position:static !important}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.inset-y-0{top:0px;bottom:0px}.left-0{left:0px}.left-1\/2{left:50%}.left-\[40px\]{left:40px}.right-\[0px\]{right:0px}.top-0{top:0px}.top-\[30px\]{top:30px}.top-\[91px\]{top:91px}.z-50{z-index:50}.m-0{margin:0px}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.ml-2{margin-left:0.5rem}.ml-auto{margin-left:auto}.mt-1{margin-top:0.25rem}.mt-4{margin-top:1rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-16{height:4rem}.h-4{height:1rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-\[30px\]{height:30px}.h-\[408px\]{height:408px}.h-\[473px\]{height:473px}.h-\[487px\]{height:487px}.h-\[590px\]{height:590px}.h-\[608px\]{height:608px}.h-\[91px\]{height:91px}.h-full{height:100%}.h-screen{height:100vh}.\!h-full{height:100% !important}.h-\[145px\]{height:145px}.min-h-0{min-height:0px}.w-1\/3{width:33.333333%}.w-10{width:2.5rem}.w-16{width:4rem}.w-4{width:1rem}.w-6{width:1.5rem}.w-72{width:18rem}.w-8{width:2rem}.w-\[1303px\]{width:1303px}.w-\[229px\]{width:229px}.w-\[272px\]{width:272px}.w-\[60px\]{width:60px}.w-\[726px\]{width:726px}.w-full{width:100%}.w-screen{width:100vw}.\!w-full{width:100% !important}.max-w-md{max-width:28rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-12{--tw-translate-y:-3rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.content-start{align-content:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-800 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(30 41 59 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-4{border-width:4px}.border-b{border-bottom-width:1px}.border-blue-500{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.border-blue-500\/30{border-color:rgb(59 130 246 / 0.3)}.border-red-500\/30{border-color:rgb(239 68 68 / 0.3)}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.border-slate-700\/50{border-color:rgb(51 65 85 / 0.5)}.border-t-blue-500{--tw-border-opacity:1;border-top-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-red-500\/10{background-color:rgb(239 68 68 / 0.1)}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-800\/50{background-color:rgb(30 41 59 / 0.5)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-slate-900\/80{background-color:rgb(15 23 42 / 0.8)}.bg-transparent{background-color:transparent}.bg-blue-500\/20{background-color:rgb(59 130 246 / 0.2)}.object-contain{object-fit:contain}.\!object-contain{object-fit:contain !important}.p-0{padding:0px}.p-1{padding:0.25rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.p-2{padding:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-4{padding-top:1rem;padding-bottom:1rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.pb-1{padding-bottom:0.25rem}.pb-3{padding-bottom:0.75rem}.pl-3{padding-left:0.75rem}.pl-9{padding-left:2.25rem}.pr-3{padding-right:0.75rem}.pt-1{padding-top:0.25rem}.pt-\[62px\]{padding-top:62px}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[11px\]{font-size:11px}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.capitalize{text-transform:capitalize}.italic{font-style:italic}.leading-5{line-height:1.25rem}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-blue-300{--tw-text-opacity:1;color:rgb(147 197 253 / var(--tw-text-opacity, 1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-red-300\/80{color:rgb(252 165 165 / 0.8)}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500\/50{color:rgb(100 116 139 / 0.5)}.text-slate-500\/70{color:rgb(100 116 139 / 0.7)}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.placeholder-slate-500::placeholder{--tw-placeholder-opacity:1;color:rgb(100 116 139 / var(--tw-placeholder-opacity, 1))}.opacity-80{opacity:0.8}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_0_15px_rgba\(59\2c 130\2c 246\2c 0\.5\)\]{--tw-shadow:0 0 15px rgba(59,130,246,0.5);--tw-shadow-colored:0 0 15px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.drop-shadow-\[0_0_8px_rgba\(255\2c 255\2c 255\2c 0\.1\)\]{--tw-drop-shadow:drop-shadow(0 0 8px rgba(255,255,255,0.1));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-md{--tw-drop-shadow:drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.selection\:bg-blue-500\/30 *::selection{background-color:rgb(59 130 246 / 0.3)}.selection\:bg-blue-500\/30::selection{background-color:rgb(59 130 246 / 0.3)}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800\/30:hover{background-color:rgb(30 41 59 / 0.3)}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.focus\:border-blue-500:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:bg-slate-800:focus{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.group:hover .group-hover\:scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:border-slate-500{--tw-border-opacity:1;border-color:rgb(100 116 139 / var(--tw-border-opacity, 1))}.group:hover .group-hover\:text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}</style></head>
+<body class="bg-transparent text-slate-200 h-screen w-screen overflow-hidden font-sans antialiased selection:bg-blue-500/30 select-none flex justify-center m-0 p-0">
+
+  <!-- CONTENEDOR MAESTRO ABSOLUTO PIXEL-PERFECT (1303px de área total interactiva) -->
+  <div class="relative w-[1303px] h-[608px]">
+
+    <!-- CONTROLADOR SUPERIOR (ÚNICA ZONA INTERACTIVA - pt-[62px] por banner xat) -->
+    <header class="absolute top-0 left-0 w-[1303px] h-[91px] pt-[62px] flex items-center justify-between px-6 pointer-events-auto z-50">
+        
+        <!-- CONTENIDO NORMAL DE CABECERA -->
+        <div id="top-normal-content" class="flex items-center gap-6 w-full transition-opacity">
+            
+            <!-- Pestañas de Navegación -->
+            <div class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-700 shadow-md backdrop-blur-sm">
+                <button onclick="window.switchRightView('smilies')" id="top-btn-smilies" data-i18n="smilies" class="px-5 py-1 bg-blue-600 border border-blue-500 rounded-lg text-xs font-bold text-white shadow-sm transition-all">Smilies</button>
+                <button onclick="window.switchRightView('pawns')" id="top-btn-pawns" data-i18n="pawns" class="px-5 py-1 bg-transparent hover:bg-slate-800 border border-transparent rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all opacity-80">Pawns</button>
+            </div>
+
+            <!-- Paginación Panel Derecho -->
+            <div class="flex items-center gap-3 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700 shadow-md backdrop-blur-sm">
+                <button onclick="window.prevPage()" class="text-slate-400 hover:text-white transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <span id="page-indicator" class="text-xs font-bold text-slate-300 font-mono w-10 text-center">1/2</span>
+                <button onclick="window.nextPage()" class="text-slate-400 hover:text-white transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+
+            <!-- Botón Ocultar/Mostrar UI -->
+            <button onclick="window.toggleUI()" id="top-btn-toggle" class="px-3 py-1.5 ml-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <span data-i18n="hide_ui">Ocultar</span>
+            </button>
+
+            <!-- Botón Cambio Idioma -->
+            <button onclick="window.toggleLanguage()" id="top-btn-lang" class="px-3 py-1.5 ml-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer w-[60px] justify-center">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                </svg>
+                <span id="lang-indicator">EN</span>
+            </button>
+        </div>
+
+        <!-- CONTENIDO BUSCADOR HORIZONTAL (Oculto por defecto, visible al tipear) -->
+        <div id="search-horizontal-results" class="hidden flex-1 items-center gap-3 overflow-hidden h-full px-4 w-full">
+           <span data-i18n="results" class="text-xs text-slate-400 whitespace-nowrap font-semibold shrink-0">Resultados:</span>
+           <div id="search-results-container" class="flex items-center gap-2 flex-1 overflow-x-auto search-scroll h-full pb-1 pt-1">
+               <!-- CHIPS DE RESULTADOS DINÁMICOS -->
+           </div>
+        </div>
+
+        <!-- BUSCADOR INPUT -->
+        <div class="relative w-72 shrink-0 h-[30px] ml-auto">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input type="text" id="top-search" oninput="window.doTopSearch(this.value)" data-i18n-placeholder="search_placeholder" placeholder="Buscar códigos..." class="block w-full h-full pl-9 pr-3 py-1 border border-slate-700 rounded-lg leading-5 bg-slate-900/80 backdrop-blur-sm text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-800 focus:border-blue-500 transition-colors text-xs shadow-md">
+        </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL XATFRAME (100% Bloqueada para clics) -->
+    <main class="absolute top-[91px] left-0 w-[1303px] h-[487px] pointer-events-none">
+
+        <!-- PANEL IZQUIERDO (CUADRO 1: DETALLES) -->
+        <aside id="left-panel" class="absolute top-[30px] left-[40px] w-[229px] h-[408px] overflow-hidden pointer-events-none transition-opacity duration-300">
+            <!-- Escala CSS Exacta que ya mantenías: Ancho interno 380px escalado al 60.2% -> 229px -->
+            <div style="width: 380px; transform: scale(0.602); transform-origin: top left; position: absolute; top: 0; left: 0;">
+                
+                <section id="section-details" class="bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 overflow-hidden w-full">
+                    <div class="bg-slate-800/50 p-6 border-b border-slate-800 flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                            <img src="https://xat.com/content/web/R00243//img/navbar/powers.svg" alt="Powers icon" class="h-8 w-8 object-contain"> <span data-i18n="power_details">Nuevo Power</span>
+                        </h2>
+                        <div id="t-status-badge"><span class="bg-blue-500/20 text-blue-400 py-1.5 px-4 rounded-full text-xs font-bold tracking-widest uppercase border border-blue-500/30 shadow-sm">Limited</span></div>
+                    </div>
+                    
+                    <div class="overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <tbody class="divide-y divide-slate-800 text-base">
+                                <tr class="hover:bg-slate-800/30 transition-colors">
+                                    <th data-i18n="id" class="py-4 px-6 bg-slate-900/50 font-semibold w-1/3 text-slate-400 uppercase text-xs tracking-wider">ID</th>
+                                    <td class="py-4 px-6 font-mono text-blue-300 font-medium" id="t-id">752</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30 transition-colors">
+                                    <th data-i18n="power" class="py-4 px-6 bg-slate-900/50 font-semibold w-1/3 text-slate-400 uppercase text-xs tracking-wider">Power</th>
+                                    <td class="py-4 px-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="inline-block p-1 bg-slate-800 rounded-xl border border-slate-700 shadow-inner">
+                                                <div class="sprite-container mx-auto bg-slate-900 rounded-lg">
+                                                    <img id="t-img" alt="Main Power" class="sprite-image hidden" src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twenty)_80" style="display: block;">
+                                                </div>
+                                            </div>
+                                            <img src="https://xat.com/content/web/R00243/img/navbar/new.svg" alt="New icon" class="h-10 w-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30 transition-colors">
+                                    <th data-i18n="name" class="py-4 px-6 bg-slate-900/50 font-semibold w-1/3 text-slate-400 uppercase text-xs tracking-wider">Nombre</th>
+                                    <td class="py-4 px-6 font-bold text-white text-xl capitalize tracking-wide" id="t-name">twenty</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30 transition-colors">
+                                    <th data-i18n="desc" class="py-4 px-6 bg-slate-900/50 font-semibold w-1/3 text-slate-400 uppercase text-xs tracking-wider">Descripción</th>
+                                    <td class="py-4 px-6 text-slate-300 leading-relaxed" id="t-desc">Twenty smilies</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30 transition-colors">
+                                    <th data-i18n="store_status" class="py-4 px-6 bg-slate-900/50 font-semibold w-1/3 text-slate-400 uppercase text-xs tracking-wider">Store Status</th>
+                                    <td class="py-4 px-6 font-medium" id="t-store">Limited</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30 transition-colors">
+                                    <th data-i18n="price" class="py-4 px-6 bg-slate-900/50 font-semibold w-1/3 text-slate-400 uppercase text-xs tracking-wider">Precio</th>
+                                    <td class="py-4 px-6 font-extrabold text-emerald-400 text-2xl tracking-tight" id="t-price">299 xats</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/30 transition-colors" id="row-countdown">
+                                    <th data-i18n="release" class="py-4 px-6 bg-slate-900/50 font-semibold w-1/3 text-slate-400 uppercase text-xs tracking-wider">Lanzamiento</th>
+                                    <td class="py-4 px-6">
+                                        <div id="t-countdown-status" class="text-sm font-medium text-slate-300 mb-1 capitalize">No countdown available.</div>
+                                        <div id="t-countdown-timer" class="font-mono text-xl text-amber-400 font-bold tracking-wider"></div>
+                                        <div data-i18n="delay_msg" class="text-[10px] text-slate-500/70 mt-1 italic">Puede tener un delay de 1-2 segundos</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- Firma de diseño WIFI7 -->
+                <div class="mt-4 text-center text-xs font-bold tracking-widest text-slate-500/50 uppercase pointer-events-none select-none">
+                    WIFI7 XATFRAME DESIGN
+                </div>
+            </div>
+        </aside>
+
+        <!-- ZONA CENTRAL XAT (CUADRO 2: CHAT) -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[726px] h-[487px] shrink-0 pointer-events-none">
+            <!-- Esqueleto de Carga -->
+            <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center -translate-y-12 animate-pulse-slow hidden">
+                <div class="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-6 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+                <p data-i18n="loading" class="text-blue-400 font-semibold text-lg tracking-widest uppercase bg-slate-900/50 px-6 py-2 rounded-full backdrop-blur-sm">Cargando catálogo...</p>
+            </div>
+            <!-- Error -->
+            <div id="error" class="absolute inset-0 flex-col items-center justify-center -translate-y-12 hidden">
+                <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 max-w-md mx-auto backdrop-blur-sm text-center">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <h3 data-i18n="error_title" class="text-white font-bold text-xl mb-2">Oops! Algo salió mal.</h3>
+                    <p data-i18n="error_desc" class="text-red-300/80 font-medium text-sm mb-6">No pudimos conectar con la API para cargar el catálogo de datos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANEL DERECHO (CUADRO 3: SMILIES/PAWNS) -->
+        <aside id="right-panel" class="absolute top-[30px] right-[0px] w-[272px] h-[473px] overflow-hidden pointer-events-none transition-opacity duration-300">
+            
+            <div id="content" class="w-full h-full" style="width: 340px; transform: scale(0.8); transform-origin: top left; position: absolute; top: 0; left: 0;">
+                
+                <!-- Sección de Smilies -->
+                <section id="section-smilies" class="bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-5 w-full h-[590px] flex flex-col">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-3 flex items-center gap-3 shrink-0">
+                        <img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(smile)_40" alt="Smile icon" class="h-6 w-6 object-contain" style="image-rendering: auto;"> <span data-i18n="smilies">Smilies</span>
+                    </h2>
+                    <div class="flex-1 w-full overflow-hidden">
+                        <!-- Grid fija para 6 elementos gigantes y legibles -->
+                        <div id="smileys-grid" class="grid grid-cols-2 gap-3 content-start w-full"><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: flex;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twenty)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twenty)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: flex;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentypc">twentypc</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentypc)_80" alt="twentypc" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentypc)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: flex;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentydate">twentydate</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentydate)_80" alt="twentydate" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentydate)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: flex;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentyh">twentyh</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentyh)_80" alt="twentyh" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentyh)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: flex;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentyc">twentyc</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentyc)_80" alt="twentyc" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentyc)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: flex;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentydj">twentydj</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentydj)_80" alt="twentydj" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentydj)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: none;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentym">twentym</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentym)_80" alt="twentym" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentym)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: none;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentyzz">twentyzz</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentyzz)_80" alt="twentyzz" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentyzz)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: none;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentyp">twentyp</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentyp)_80" alt="twentyp" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentyp)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative" style="display: none;"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twentyo">twentyo</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(twentyo)_80" alt="twentyo" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(twentyo)</span></div></div>
+                    </div>
+                </section>
+
+                <!-- Sección de Pawns -->
+                <section id="section-pawns" class="bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 p-5 w-full h-[590px] hidden flex-col">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-3 flex items-center gap-3 shrink-0">
+                        <img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1pwn)_40" alt="Pawn icon" class="h-6 w-6 object-contain" style="image-rendering: auto;"> <span data-i18n="pawns">Pawns</span>
+                    </h2>
+                    <div class="flex-1 w-full overflow-hidden">
+                        <div id="pawns-grid" class="grid grid-cols-2 gap-3 content-start w-full"><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty2)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTb)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty1)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTa)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty3)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTc)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty4)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTd)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty5)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTe)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty6)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTf)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty7)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTg)</span></div><div class="w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative"><span class="text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight" title="twenty">twenty</span><div class="sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0"><img src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(p1twenty8)_80" alt="twenty" class="sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md"></div><span class="copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white" title="Interactúa desde buscador superior" data-i18n-title="interact_msg">(hat#hTh)</span></div></div>
+                    </div>
+                </section>
+
+            </div>
+        </aside>
+
+    </main>
+  </div>
+
+  <script>
+    // --- SISTEMA DE TRADUCCIÓN GLOBAL ---
+    const i18n = {
+        es: {
+            smilies: "Smilies",
+            pawns: "Pawns",
+            hide_ui: "Ocultar",
+            show_ui: "Mostrar ",
+            results: "Resultados:",
+            search_placeholder: "Buscar códigos...",
+            search_copied: "¡Código copiado con éxito!",
+            power_details: "Nuevo Power",
+            id: "ID",
+            power: "Power",
+            name: "Nombre",
+            desc: "Descripción",
+            store_status: "Store Status",
+            price: "Precio",
+            release: "Lanzamiento",
+            delay_msg: "Puede tener un delay de 1-2 segundos",
+            loading: "Cargando catálogo...",
+            error_title: "Oops! Algo salió mal.",
+            error_desc: "No pudimos conectar con la API para cargar el catálogo de datos.",
+            no_matches: "No hay coincidencias",
+            copied: "✔ Copiado",
+            no_image: "Sin imagen",
+            interact_msg: "Interactúa desde buscador superior",
+            time_rem: "Tiempo Restante",
+            released: "¡Lanzado!",
+            unknown: "Desconocido",
+            unknown_state: "Estado desconocido",
+            no_desc: "Sin descripción disponible.",
+            no_smilies: "No se encontraron smilies.",
+            no_pawns: "No se encontraron pawns."
+        },
+        en: {
+            smilies: "Smilies",
+            pawns: "Pawns",
+            hide_ui: "Hide",
+            show_ui: "Show",
+            results: "Results:",
+            search_placeholder: "Search codes...",
+            search_copied: "Code copied successfully!",
+            power_details: "New Power",
+            id: "ID",
+            power: "Power",
+            name: "Name",
+            desc: "Description",
+            store_status: "Store Status",
+            price: "Price",
+            release: "Release",
+            delay_msg: "May have a 1-2 second delay",
+            loading: "Loading catalog...",
+            error_title: "Oops! Something went wrong.",
+            error_desc: "We couldn't connect to the API to load the data catalog.",
+            no_matches: "No matches found",
+            copied: "✔ Copied",
+            no_image: "No image",
+            interact_msg: "Interact from top search",
+            time_rem: "Time Remaining",
+            released: "Released!",
+            unknown: "Unknown",
+            unknown_state: "Unknown state",
+            no_desc: "No description available.",
+            no_smilies: "No smilies found.",
+            no_pawns: "No pawns found."
+        }
+    };
+    
+    // Estado del idioma
+    let currentLang = 'es';
+
+    window.updateTranslations = function() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[currentLang][key]) el.textContent = i18n[currentLang][key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (i18n[currentLang][key]) el.placeholder = i18n[currentLang][key];
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            if (i18n[currentLang][key]) el.title = i18n[currentLang][key];
+        });
+    };
+
+    window.toggleLanguage = function() {
+        currentLang = currentLang === 'es' ? 'en' : 'es';
+        document.getElementById('lang-indicator').textContent = currentLang === 'es' ? 'EN' : 'ES';
+        window.updateTranslations();
+        
+        // Actualizar botón de toggle UI
+        const btnToggle = document.getElementById('top-btn-toggle');
+        if (btnToggle) {
+            const isVisible = window.uiVisible;
+            btnToggle.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isVisible ? 'M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21'}" /></svg> <span data-i18n="${isVisible ? 'hide_ui' : 'show_ui'}">${i18n[currentLang][isVisible ? 'hide_ui' : 'show_ui']}</span>`;
+        }
+    };
+
+    // ESTADOS GLOBALES DE NAVEGACIÓN Y BÚSQUEDA
+    window.currentRightView = 'smilies';
+    window.currentPage = 0;
+    const ITEMS_PER_PAGE = 6; // Exacto para 2 columnas x 3 filas maximizadas
+    window.apiSearchData = [];
+    window.uiVisible = true;
+
+    // --- TOGGLE UI COMPLETA ---
+    window.toggleUI = function() {
+        window.uiVisible = !window.uiVisible;
+        const lp = document.getElementById('left-panel');
+        const rp = document.getElementById('right-panel');
+        const btn = document.getElementById('top-btn-toggle');
+        
+        if (window.uiVisible) {
+            lp.classList.remove('opacity-0');
+            rp.classList.remove('opacity-0');
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> <span data-i18n="hide_ui">${i18n[currentLang].hide_ui}</span>`;
+            btn.classList.replace('bg-slate-700', 'bg-slate-800');
+            btn.classList.replace('text-white', 'text-slate-300');
+        } else {
+            lp.classList.add('opacity-0');
+            rp.classList.add('opacity-0');
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg> <span data-i18n="show_ui">${i18n[currentLang].show_ui}</span>`;
+            btn.classList.replace('bg-slate-800', 'bg-slate-700');
+            btn.classList.replace('text-slate-300', 'text-white');
+        }
+    };
+
+    // --- SISTEMA DE CONTROL DE VISTAS ---
+    window.switchRightView = function(view) {
+        window.currentRightView = view;
+        window.currentPage = 0; // Resetear página al cambiar tab
+        
+        const secSmilies = document.getElementById('section-smilies');
+        const secPawns = document.getElementById('section-pawns');
+        const btnS = document.getElementById('top-btn-smilies');
+        const btnP = document.getElementById('top-btn-pawns');
+
+        if (view === 'smilies') {
+            secSmilies.classList.remove('hidden');
+            secSmilies.classList.add('flex');
+            secPawns.classList.add('hidden');
+            secPawns.classList.remove('flex');
+            
+            btnS.classList.replace('bg-transparent', 'bg-blue-600');
+            btnS.classList.replace('border-transparent', 'border-blue-500');
+            btnS.classList.replace('text-slate-400', 'text-white');
+            btnS.classList.remove('opacity-80', 'hover:bg-slate-800');
+            
+            btnP.classList.replace('bg-blue-600', 'bg-transparent');
+            btnP.classList.replace('border-blue-500', 'border-transparent');
+            btnP.classList.replace('text-white', 'text-slate-400');
+            btnP.classList.add('opacity-80', 'hover:bg-slate-800');
+        } else {
+            secPawns.classList.remove('hidden');
+            secPawns.classList.add('flex');
+            secSmilies.classList.add('hidden');
+            secSmilies.classList.remove('flex');
+            
+            btnP.classList.replace('bg-transparent', 'bg-blue-600');
+            btnP.classList.replace('border-transparent', 'border-blue-500');
+            btnP.classList.replace('text-slate-400', 'text-white');
+            btnP.classList.remove('opacity-80', 'hover:bg-slate-800');
+            
+            btnS.classList.replace('bg-blue-600', 'bg-transparent');
+            btnS.classList.replace('border-blue-500', 'border-transparent');
+            btnS.classList.replace('text-white', 'text-slate-400');
+            btnS.classList.add('opacity-80', 'hover:bg-slate-800');
+        }
+        updatePaginationUI();
+    };
+
+    // --- SISTEMA DE PAGINACIÓN ---
+    function updatePaginationUI() {
+        const gridId = window.currentRightView === 'smilies' ? 'smileys-grid' : 'pawns-grid';
+        const grid = document.getElementById(gridId);
+        const cards = grid.children;
+        const totalItems = cards.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+        
+        if (window.currentPage >= totalPages) window.currentPage = totalPages - 1;
+        
+        const start = window.currentPage * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        
+        for (let i = 0; i < cards.length; i++) {
+            if (i >= start && i < end) {
+                cards[i].style.display = 'flex';
+            } else {
+                cards[i].style.display = 'none';
+            }
+        }
+        
+        document.getElementById('page-indicator').textContent = `${window.currentPage + 1}/${totalPages}`;
+    }
+
+    window.nextPage = function() {
+        const gridId = window.currentRightView === 'smilies' ? 'smileys-grid' : 'pawns-grid';
+        const totalItems = document.getElementById(gridId).children.length;
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        if (window.currentPage < totalPages - 1) {
+            window.currentPage++;
+            updatePaginationUI();
+        }
+    };
+
+    window.prevPage = function() {
+        if (window.currentPage > 0) {
+            window.currentPage--;
+            updatePaginationUI();
+        }
+    };
+
+    // --- BÚSQUEDA EN TIEMPO REAL CON IMÁGENES EXACTAS DE LA API ---
+    window.doTopSearch = function(query) {
+        const normalContent = document.getElementById('top-normal-content');
+        const resultsWrapper = document.getElementById('search-horizontal-results');
+        const resultsContainer = document.getElementById('search-results-container');
+        
+        resultsContainer.innerHTML = '';
+        
+        if (!query.trim()) {
+            resultsWrapper.classList.add('hidden');
+            resultsWrapper.classList.remove('flex');
+            normalContent.style.display = 'flex';
+            return;
+        }
+        
+        normalContent.style.display = 'none'; 
+        resultsWrapper.classList.remove('hidden');
+        resultsWrapper.classList.add('flex');
+        
+        const term = query.toLowerCase();
+        const results = window.apiSearchData.filter(d => d.name.toLowerCase().includes(term) || d.code.toLowerCase().includes(term));
+        
+        if (results.length === 0) {
+            resultsContainer.innerHTML = `<span class="text-xs text-slate-500 italic" data-i18n="no_matches">${i18n[currentLang].no_matches}</span>`;
+        } else {
+            results.slice(0, 10).forEach(r => {
+                const btn = document.createElement('button');
+                btn.className = 'px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded flex items-center gap-2 text-xs text-white transition-colors whitespace-nowrap shrink-0 group pointer-events-auto';
+                
+                // Imagen real de la API
+                const imgNode = `<img src="${r.imgUrl}" class="w-5 h-5 object-contain" style="image-rendering: auto;">`;
+                
+                btn.innerHTML = `${imgNode} <span class="font-medium ml-1">${r.name}</span> <span class="text-emerald-400 font-mono bg-emerald-400/10 px-1.5 py-0.5 rounded shadow-inner group-hover:bg-emerald-400/20">${r.code}</span>`;
+                btn.onclick = () => window.topCopyCode(r.code, btn);
+                resultsContainer.appendChild(btn);
+            });
+        }
+    };
+
+    window.topCopyCode = function(text, btnElement) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            const originalHtml = btnElement.innerHTML;
+            
+            btnElement.innerHTML = `<span class="text-emerald-400 font-bold px-2 py-0.5" data-i18n="copied">${i18n[currentLang].copied}</span>`;
+            btnElement.classList.replace('border-slate-600', 'border-emerald-500');
+            btnElement.classList.replace('bg-slate-800', 'bg-emerald-900/40');
+            
+            const searchInput = document.getElementById('top-search');
+            searchInput.placeholder = i18n[currentLang].search_copied;
+            
+            setTimeout(() => {
+                btnElement.innerHTML = originalHtml;
+                btnElement.classList.replace('border-emerald-500', 'border-slate-600');
+                btnElement.classList.replace('bg-emerald-900/40', 'bg-slate-800');
+                searchInput.placeholder = i18n[currentLang].search_placeholder;
+            }, 1200);
+        } catch(e) {
+            console.error(e);
+        }
+        document.body.removeChild(textarea);
+    };
+
+    const loadingEl = document.getElementById('loading');
+    const contentEl = document.getElementById('content');
+    const errorEl = document.getElementById('error');
+
+    const tId = document.getElementById('t-id');
+    const tImg = document.getElementById('t-img');
+    const tName = document.getElementById('t-name');
+    const tDesc = document.getElementById('t-desc');
+    const tStatusBadge = document.getElementById('t-status-badge');
+    const tStore = document.getElementById('t-store');
+    const tPrice = document.getElementById('t-price');
+
+    const rowCountdown = document.getElementById('row-countdown');
+    const tCountdownStatus = document.getElementById('t-countdown-status');
+    const tCountdownTimer = document.getElementById('t-countdown-timer');
+    let countdownInterval;
+
+    const smileysGrid = document.getElementById('smileys-grid');
+    const pawnsGrid = document.getElementById('pawns-grid');
+
+    function showView(view) {
+        loadingEl.classList.add('hidden');
+        contentEl.classList.add('hidden');
+        errorEl.classList.add('hidden');
+        errorEl.classList.remove('flex');
+        
+        if(view === 'loading') loadingEl.classList.remove('hidden');
+        if(view === 'content') contentEl.classList.remove('hidden');
+        if(view === 'error') {
+            errorEl.classList.remove('hidden');
+            errorEl.classList.add('flex');
+        }
+    }
+
+    // Card optimizada para eliminar espacios huecos, alinear verticalmente y mantener imágenes grandes
+    function createImageCard(topText, imageUrl, bottomText, containerElement) {
+        const card = document.createElement('div');
+        // Rediseño de card: justify-center (centra el contenido) y gap-1.5 (une los elementos visualmente)
+        card.className = 'w-full h-[145px] group bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 shadow-sm relative';
+        
+        const topSpan = document.createElement('span');
+        topSpan.className = 'text-sm font-bold text-white w-full text-center truncate capitalize shrink-0 leading-tight';
+        topSpan.title = topText;
+        topSpan.textContent = topText;
+
+        const imgContainer = document.createElement('div');
+        // flex-1 permite que el contenedor abrace la imagen. Eliminamos márgenes excesivos para compactar.
+        imgContainer.className = 'sprite-container mx-auto bg-slate-900 rounded-lg shadow-inner flex-1 w-full flex items-center justify-center p-1 min-h-0';
+        
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = topText;
+        // !static, !w-full, !h-full, !object-contain sobreescriben la posición left:0 absoluta del CSS base para centrar milimétricamente
+        img.className = "sprite-image !static !w-full !h-full !object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-md";
+        
+        img.onerror = function() {
+            if (containerElement.id === 'pawns-grid' && this.src.includes('_80')) {
+                this.src = this.src.replace('_80', '_40');
+                return;
+            }
+            this.style.display = 'none';
+            imgContainer.classList.add('flex', 'items-center', 'justify-center');
+            const fallbackText = document.createElement('span');
+            fallbackText.className = 'text-[10px] text-slate-500 font-medium text-center px-1';
+            fallbackText.innerHTML = `<span data-i18n="no_image">${i18n[currentLang].no_image}</span>`;
+            imgContainer.appendChild(fallbackText);
+        };
+
+        const bottomSpan = document.createElement('span');
+        bottomSpan.className = 'copyable-code text-[11px] font-mono font-semibold text-slate-300 bg-slate-900/80 px-2 py-1.5 rounded-lg w-full text-center truncate border border-slate-700 select-none shrink-0 transition-colors group-hover:border-slate-500 group-hover:text-white';
+        bottomSpan.textContent = bottomText;
+        bottomSpan.title = i18n[currentLang].interact_msg; 
+        bottomSpan.setAttribute('data-i18n-title', 'interact_msg');
+
+        imgContainer.appendChild(img);
+        card.appendChild(topSpan);
+        card.appendChild(imgContainer);
+        card.appendChild(bottomSpan);
+        containerElement.appendChild(card);
+    }
+
+    async function cargarCountdown() {
+        try {
+            const res = await fetch("https://api.xatblog.net/countdown", {
+                headers: { 'accept': '*/*' }
+            });
+            if (!res.ok) throw new Error(`Error HTTP Countdown: ${res.status}`);
+            const data = await res.json();
+
+            if (data.code === 200) {
+                rowCountdown.classList.remove('hidden'); 
+                
+                let apiStatus = data.status || i18n[currentLang].unknown_state;
+                if (apiStatus.toLowerCase() === "will be released") {
+                    tCountdownStatus.innerHTML = `<span data-i18n="time_rem">${i18n[currentLang].time_rem}</span>`;
+                } else {
+                    tCountdownStatus.textContent = apiStatus;
+                }
+
+                if (data.status_code === 'counting' && data.remaining_int) {
+                    const targetTime = Date.now() + (parseInt(data.remaining_int, 10) * 1000);
+                    
+                    if (countdownInterval) clearInterval(countdownInterval);
+
+                    const updateTimer = () => {
+                        const timeLeft = Math.floor((targetTime - Date.now()) / 1000);
+
+                        if (timeLeft <= 0) {
+                            tCountdownTimer.innerHTML = `<span data-i18n="released">${i18n[currentLang].released}</span>`;
+                            tCountdownTimer.classList.remove('text-amber-400');
+                            tCountdownTimer.classList.add('text-emerald-400');
+                            clearInterval(countdownInterval);
+                            return;
+                        }
+                        
+                        const d = Math.floor(timeLeft / (3600 * 24));
+                        const h = Math.floor((timeLeft % (3600 * 24)) / 3600).toString().padStart(2, '0');
+                        const m = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
+                        const s = Math.floor(timeLeft % 60).toString().padStart(2, '0');
+                        
+                        let timeString = `${h}:${m}:${s}`;
+                        if (d > 0) timeString = `${d}d ` + timeString; 
+                        
+                        tCountdownTimer.textContent = timeString;
+                    };
+
+                    updateTimer(); 
+                    countdownInterval = setInterval(updateTimer, 1000); 
+                } else {
+                    tCountdownTimer.textContent = "";
+                }
+            }
+        } catch (error) {
+            console.error("Error obteniendo countdown:", error);
+            rowCountdown.classList.add('hidden'); 
+        }
+    }
+
+    async function cargarDatos() {
+        showView('loading');
+        window.apiSearchData = []; 
+        
+        try {
+            const res = await fetch("https://illuxat.com/api/latestpower");
+            
+            if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+            
+            const json = await res.json();
+            const item = json.data.latest;
+
+            tId.innerHTML = item?.Id || `<span data-i18n="unknown">${i18n[currentLang].unknown}</span>`;
+            tName.innerHTML = item?.Name || `<span data-i18n="unknown">${i18n[currentLang].unknown}</span>`;
+            tDesc.innerHTML = item?.Descriptions?.shortDescription || `<span data-i18n="no_desc">${i18n[currentLang].no_desc}</span>`;
+            tStore.innerHTML = item?.StoreStatus || `<span data-i18n="unknown">${i18n[currentLang].unknown}</span>`;
+            tPrice.innerHTML = item?.Prices?.store ? item.Prices.store : `<span data-i18n="unknown">${i18n[currentLang].unknown}</span>`;
+
+            const statusText = item?.Status || "N/A";
+            tStatusBadge.innerHTML = `<span class="bg-blue-500/20 text-blue-400 py-1.5 px-4 rounded-full text-xs font-bold tracking-widest uppercase border border-blue-500/30 shadow-sm">${statusText}</span>`;
+
+            const primerSmiley = (item?.Smileys && item.Smileys.length > 0) ? item.Smileys[0] : null;
+            if (primerSmiley) {
+                tImg.src = `https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(${primerSmiley})_80`;
+                tImg.style.display = 'block';
+                tImg.onerror = function() { this.style.display = 'none'; };
+            } else {
+                tImg.style.display = 'none';
+            }
+
+            smileysGrid.innerHTML = ''; 
+            if (item?.Smileys && Array.isArray(item.Smileys)) {
+                item.Smileys.forEach(nombre => {
+                    const imgUrl = `https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(${nombre})_80`;
+                    createImageCard(nombre, imgUrl, `(${nombre})`, smileysGrid);
+                    
+                    window.apiSearchData.push({ type: 'Smiley', name: nombre, code: `(${nombre})`, imgUrl: imgUrl });
+                });
+            } else {
+                smileysGrid.innerHTML = `<p class="col-span-full text-slate-500 text-sm italic py-4 text-center"><span data-i18n="no_smilies">${i18n[currentLang].no_smilies}</span></p>`;
+            }
+
+            pawnsGrid.innerHTML = ''; 
+            if (item?.Pawns && typeof item.Pawns === 'object') {
+                const pawnsEntries = Object.entries(item.Pawns); 
+
+                if (pawnsEntries.length > 0) {
+                    pawnsEntries.forEach(([code, nombre]) => {
+                        const powerName = item.Name || i18n[currentLang].unknown;
+                        
+                        let validSmileyName = nombre;
+                        if (!validSmileyName || String(validSmileyName).trim() === '') {
+                            validSmileyName = (item.Smileys && item.Smileys.length > 0) ? item.Smileys[0] : powerName.toLowerCase();
+                        }
+                        
+                        const imgUrl = `https://s0.xat.com/web_gear/chat/GetStrip8.php?c=a_(${validSmileyName})_80`;
+                        createImageCard(powerName, imgUrl, `(hat#${code})`, pawnsGrid);
+                        
+                        window.apiSearchData.push({ type: 'Pawn', name: validSmileyName, code: `(hat#${code})`, imgUrl: imgUrl });
+                    });
+                } else {
+                    pawnsGrid.innerHTML = `<p class="col-span-full text-slate-500 text-sm italic py-4 text-center"><span data-i18n="no_pawns">${i18n[currentLang].no_pawns}</span></p>`;
+                }
+            } else {
+                pawnsGrid.innerHTML = `<p class="col-span-full text-slate-500 text-sm italic py-4 text-center"><span data-i18n="no_pawns">${i18n[currentLang].no_pawns}</span></p>`;
+            }
+
+            showView('content');
+            cargarCountdown();
+            updatePaginationUI();
+            
+            // Garantizar traducción tras cargar componentes dinámicos
+            window.updateTranslations();
+            
+        } catch (error) {
+            console.error("Error obteniendo datos:", error);
+            showView('error');
+        }
+    }
+
+    cargarDatos();
+
+    // --- PROTECCIÓN GLOBAL DE COPIA Y ANTI-DEVTOOLS ---
+    
+    // Deshabilitar el clic derecho en toda la página
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Prevenir copiado manual desde teclado, aunque permitiendo el programático si hay selección interna
+    document.addEventListener('copy', function(e) {
+        if (e.target.tagName === 'TEXTAREA') return; 
+        
+        const selection = window.getSelection();
+        let isCopyable = false;
+        
+        if (selection.rangeCount > 0) {
+            const node = selection.focusNode;
+            if (node && node.parentElement && node.parentElement.classList.contains('copyable-code')) {
+                isCopyable = true;
+            }
+        }
+        
+        if (!isCopyable) {
+            e.preventDefault();
+        }
+    });
+
+    // Bloquear atajos de teclado para herramientas de desarrollo
+    document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === 'F12' || e.keyCode === 123) { 
+            e.preventDefault(); 
+            return false; 
+        }
+        // Ctrl+Shift+I / J / C (Inspeccionar, Consola, Inspector de Elementos)
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) { 
+            e.preventDefault(); 
+            return false; 
+        }
+        // Ctrl+U (Ver código fuente)
+        if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) { 
+            e.preventDefault(); 
+            return false; 
+        }
+
+        // Ctrl+C (Copiar) excepto si es permitido
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+            const selection = window.getSelection();
+            let isCopyable = false;
+            if (selection.rangeCount > 0) {
+                const node = selection.focusNode;
+                if (node && node.parentElement && node.parentElement.classList.contains('copyable-code')) {
+                    isCopyable = true;
+                }
+            }
+            if (!isCopyable && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
+        }
+    });
+
+    // Detección de DevTools (trampa del depurador para disuadir la inspección)
+    (function() {
+        setInterval(function() {
+            const before = new Date().getTime();
+            // Esta instrucción pausa la ejecución si las herramientas de desarrollador están abiertas
+            debugger;
+            const after = new Date().getTime();
+            // Si la pausa duró más de un tiempo razonable, asumimos que DevTools está abierto
+            if (after - before > 100) {
+                // Acción disuasoria: mostrar una pantalla en blanco y vaciar el body
+                document.body.innerHTML = '';
+                document.body.style.display = 'none';
+            }
+        }, 1000);
+    })();
+
+  </script>
+
+
+
+</body>
