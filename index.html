@@ -101,8 +101,8 @@
             
             <!-- Pestañas de Navegación -->
             <div class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-xl border border-slate-700 shadow-md backdrop-blur-sm">
-                <button onclick="window.switchRightView('smilies')" id="top-btn-smilies" data-i18n="smilies" class="px-5 py-1 bg-blue-600 border border-blue-500 rounded-lg text-xs font-bold text-white shadow-sm transition-all">Smilies</button>
-                <button onclick="window.switchRightView('pawns')" id="top-btn-pawns" data-i18n="pawns" class="px-5 py-1 bg-transparent hover:bg-slate-800 border border-transparent rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all opacity-80">Pawns</button>
+                <button onclick="window.switchRightView('smilies')" id="top-btn-smilies" data-i18n="smilies" class="px-5 py-1 bg-blue-600 border border-blue-500 rounded-lg text-xs font-bold text-white shadow-sm transition-all"></button>
+                <button onclick="window.switchRightView('pawns')" id="top-btn-pawns" data-i18n="pawns" class="px-5 py-1 bg-transparent hover:bg-slate-800 border border-transparent rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all opacity-80"></button>
             </div>
 
             <!-- Paginación Panel Derecho -->
@@ -110,7 +110,7 @@
                 <button onclick="window.prevPage()" class="text-slate-400 hover:text-white transition-colors cursor-pointer">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
-                <span id="page-indicator" class="text-xs font-bold text-slate-300 font-mono w-10 text-center">1/2</span>
+                <span id="page-indicator" class="text-xs font-bold text-slate-300 font-mono w-10 text-center"></span>
                 <button onclick="window.nextPage()" class="text-slate-400 hover:text-white transition-colors cursor-pointer">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                 </button>
@@ -119,7 +119,7 @@
             <!-- Botón Ocultar/Mostrar UI -->
             <button onclick="window.toggleUI()" id="top-btn-toggle" class="px-3 py-1.5 ml-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                <span data-i18n="hide_ui">Ocultar</span>
+                <span data-i18n="hide_ui"></span>
             </button>
 
             <!-- Botón Cambio Idioma -->
@@ -133,7 +133,7 @@
 
         <!-- CONTENIDO BUSCADOR HORIZONTAL (Oculto por defecto, visible al tipear) -->
         <div id="search-horizontal-results" class="hidden flex-1 items-center gap-3 overflow-hidden h-full px-4 w-full">
-           <span data-i18n="results" class="text-xs text-slate-400 whitespace-nowrap font-semibold shrink-0">Resultados:</span>
+           <span data-i18n="results" class="text-xs text-slate-400 whitespace-nowrap font-semibold shrink-0"></span>
            <div id="search-results-container" class="flex items-center gap-2 flex-1 overflow-x-auto search-scroll h-full pb-1 pt-1">
                <!-- CHIPS DE RESULTADOS DINÁMICOS -->
            </div>
@@ -179,7 +179,7 @@
                                         <div class="flex items-center gap-4">
                                             <div class="inline-block p-1 bg-slate-800 rounded-xl border border-slate-700 shadow-inner">
                                                 <div class="sprite-container mx-auto bg-slate-900 rounded-lg">
-                                                    <img id="t-img" alt="Main Power" class="sprite-image hidden" src="" style="display: block;">
+                                                    <img id="t-img" alt="Main Power" class="sprite-image hidden" src="https://s0.xat.com/web_gear/chat/GetStrip8.php?c=" style="display: block;">
                                                 </div>
                                             </div>
                                             <img src="https://xat.com/content/web/R00243/img/navbar/new.svg" alt="New icon" class="h-10 w-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">
